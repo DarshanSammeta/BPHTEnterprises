@@ -143,120 +143,64 @@ document.addEventListener("DOMContentLoaded", function () {
 
 document.addEventListener("DOMContentLoaded", () => {
   const heroSection = document.querySelector(".hero-section");
-  const dots = document.querySelectorAll(".slider-nav-dots .dot");
   const layers = document.querySelectorAll(".layered-images img");
+  const dots = document.querySelectorAll(".slider-nav-dots .dot");
 
-  if (!heroSection || dots.length === 0 || layers.length === 0) return;
+  if (!heroSection || layers.length === 0 || dots.length === 0) return;
 
   let currentSlide = 0;
-  const slideDuration = 4000;
-  let slideInterval;
+  const slideIntervalTime = 4500;
+  let sliderTimer;
 
-  // Reset all slides
   function resetSlides() {
-    layers.forEach((layer) => {
-      layer.style.transition =
-        "opacity 1s ease-in-out, transform 1s ease-in-out";
-      layer.style.opacity = "0";
-      layer.style.transform = "scale(1.05)";
-      layer.style.zIndex = "1";
+    layers.forEach(img => {
+      img.style.opacity = "0";
+      img.style.transform = "scale(1.05)";
+      img.style.transition = "opacity 1s ease, transform 1s ease";
+      img.style.zIndex = "1";
     });
-    dots.forEach((dot) => dot.classList.remove("active"));
+
+    dots.forEach(dot => dot.classList.remove("active"));
   }
 
-  // Show specific slide safely
   function showSlide(index) {
+    resetSlides();
+
     if (index >= layers.length) index = 0;
     if (index < 0) index = layers.length - 1;
 
-    resetSlides();
+    const activeImg = layers[index];
+    const imgSrc = activeImg.getAttribute("src");
 
-    const activeLayer = layers[index];
-    if (!activeLayer) return;
+    heroSection.style.background = `url('${imgSrc}') no-repeat center / cover`;
+    heroSection.style.transition = "background 0.8s ease-in-out";
 
-    // ✅ Always update background first to avoid blank
-    const imgSrc = activeLayer.getAttribute("src");
-    if (imgSrc) {
-      heroSection.style.backgroundImage = `url('${imgSrc}')`;
-      heroSection.style.backgroundRepeat = "no-repeat";
-      heroSection.style.backgroundPosition = "center center";
-      heroSection.style.backgroundSize = "cover";
-      heroSection.style.transition = "background-image 0.6s ease-in-out";
-    }
-
-    // ✅ Keep active image visible during transition
-    activeLayer.style.opacity = "1";
-    activeLayer.style.transform = "scale(1)";
-    activeLayer.style.zIndex = "10";
+    activeImg.style.opacity = "1";
+    activeImg.style.transform = "scale(1)";
+    activeImg.style.zIndex = "5";
 
     dots[index].classList.add("active");
     currentSlide = index;
   }
 
-  // Auto slide
   function startAutoSlide() {
-    clearInterval(slideInterval);
-    slideInterval = setInterval(() => {
+    clearInterval(sliderTimer);
+    sliderTimer = setInterval(() => {
       currentSlide = (currentSlide + 1) % layers.length;
       showSlide(currentSlide);
-    }, slideDuration);
+    }, slideIntervalTime);
   }
 
-  // Manual navigation
   dots.forEach((dot, index) => {
     dot.addEventListener("click", () => {
-      clearInterval(slideInterval);
+      clearInterval(sliderTimer);
       showSlide(index);
       startAutoSlide();
     });
   });
 
-  // Initialize
   showSlide(0);
   startAutoSlide();
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-  const hero = document.querySelector(".hero-section");
-  const layers = document.querySelectorAll(".layered-images img");
-  const dots = document.querySelectorAll(".slider-nav-dots .dot");
-
-  // Backgrounds that match each layered image
-  const bgImages = [
-    "./imgs/hero-bg2.jpg",
-    "./imgs/hero_bg.jpg",
-    "./imgs/hero-2.jpg",
-  ];
-
-  let currentSlide = 0;
-
-  function showSlide(index) {
-    layers.forEach((img, i) => {
-      img.classList.toggle("active", i === index);
-      img.style.opacity = i === index ? "1" : "0";
-      img.style.transition = "opacity 1s ease-in-out";
-    });
-
-    dots.forEach((dot, i) => dot.classList.toggle("active", i === index));
-
-    hero.style.transition = "background 1s ease-in-out";
-    hero.style.background = `url('${bgImages[index]}') no-repeat center center/cover`;
-  }
-
-  dots.forEach((dot, i) => {
-    dot.addEventListener("click", () => {
-      currentSlide = i;
-      showSlide(currentSlide);
-    });
-  });
-
-  // Auto slide every 5 seconds
-  setInterval(() => {
-    currentSlide = (currentSlide + 1) % layers.length;
-    showSlide(currentSlide);
-  }, 5000);
-
-  showSlide(currentSlide);
 });
 
 
